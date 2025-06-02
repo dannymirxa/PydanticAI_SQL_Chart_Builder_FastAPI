@@ -10,7 +10,7 @@ import asyncio
 
 from app.models import Request, InvalidRequest, SQLResponse, ChartResponses, OPENAI_MODEL, SQLSuccess
 from app.sql_operations import list_tables, describe_table, run_sql_query
-from dataframe import create_dataframe_pd_json, create_dataframe_pd
+from app.dataframe import create_dataframe_pd_json, create_dataframe_pd
 
 @dataclass
 class Dependencies:
@@ -250,9 +250,9 @@ async def main(request: Request) -> SQLResponse:
 
     return sql_agent_final_response.output
 
-# if __name__=="__main__":
-#     request = Request(query="Show me how many albums each artist has, and plot this as a bar chart. List the artists and their album counts.")
-#     response = asyncio.run(main(request))
+if __name__=="__main__":
+    request = Request(query="For each employee, calculate the total sales amount they are responsible for, and the number of customers they have served. Only include employees who have total sales greater than $1000 and have served at least 5 customers. Display the employee's full name, their total sales, and the number of customers served. Order the results by total sales in descending order. Additionally, for each of these employees, list the top 3 genres by total sales amount that their customers have purchased.")
+    response = asyncio.run(main(request))
 
 #     print("-- sql_agent_final_response --")
     # print(sql_agent_final_response.chart_python_code)
