@@ -1,6 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 from dataclasses import dataclass
 from sqlalchemy import Engine, create_engine
 from pydantic_ai import Agent, RunContext
@@ -129,26 +128,22 @@ def chart_agent_system_prompt(ctx: RunContext[Dependencies]) -> str:
     1.  Analyze the user's request and the provided DataFrame.
     2.  If the request is feasible, choose the most appropriate chart type from: {chartOptions}.
     3.  Generate valuable insights based on the data and the potential chart.
-    4.  Produce concise and correct Python code (using matplotlib and seaborn) to plot the graph. The code should assume `df` is pre-loaded.
+    4.  Produce concise and correct Python code (using plotly.express) to plot the graph. The code should assume `df` is pre-loaded.
     5.  The Python code should be a complete, executable script that generates and shows the plot.
-    6.  **Crucially, the generated Python code MUST include `plt.savefig('chart.png')` to save the chart.**
-    7.  **Do not include `plt.show()`, the chart will not be browse**
+    6.  **Crucially, the generated Python code MUST include `fig.write_html('chart.html')` to save the chart.**
+    7.  **Do not include `fig.show()`, the chart will not be browsed**
     8.  Return the insights and the Python code.
 
     If the request is unclear or cannot be fulfilled with the given data, return an `InvalidRequest` with an explanation.
 
     Example of Python code structure:
     ```python
-    import matplotlib.pyplot as plt
-    import seaborn as sns
+    import plotly.express as px
     # df is assumed to be pre-loaded with the data
 
     # Your plotting code here
-    # e.g., sns.barplot(data=df, x='column_x', y='column_y')
-    # plt.title('Your Chart Title')
-    # plt.xlabel('X-axis Label')
-    # plt.ylabel('Y-axis Label')
-    plt.savefig('chart.png') # Save the chart as chart.png
+    # e.g., fig = px.bar(df, x='column_x', y='column_y', title='Your Chart Title')
+    fig.write_html('chart.html') # Save the chart as chart.html
     ```
 
     When returning the results in the `ChartSuccess` object, the `python_code` field must be formatted as a Python markdown code block.
@@ -235,7 +230,7 @@ def generate_chart(db_engine: Engine, sql_query: str, python_code: str) -> None:
     full_code = "\n".join(code_blocks)
     full_code = dedent(full_code)
 
-    exec_globals = {"df": df, "sns": sns, "plt": plt, "pd": pd}
+    exec_globals = {"df": df, "px": px, "pd": pd}
     exec(full_code, exec_globals)
 
 async def main(request: Request) -> SQLResponse:
@@ -251,7 +246,11 @@ async def main(request: Request) -> SQLResponse:
     return sql_agent_final_response.output
 
 if __name__=="__main__":
-    request = Request(query="For each employee, calculate the total sales amount they are responsible for, and the number of customers they have served. Only include employees who have total sales greater than $1000 and have served at least 5 customers. Display the employee's full name, their total sales, and the number of customers served. Order the results by total sales in descending order. Additionally, for each of these employees, list the top 3 genres by total sales amount that their customers have purchased.")
+    request = Request(query="Show me how many albums each artist has, and plot this as a bar chart. List the artists and their album counts.")
+    """
+    For customers located in the USA, find the total sales amount for each customer. Display the customer's full name, their email, and their total sales. Order the results by total sales in descending order. Additionally, generate a bar chart showing the top 10 customers by their total sales amount.
+    """
+    
     response = asyncio.run(main(request))
 
 #     print("-- sql_agent_final_response --")

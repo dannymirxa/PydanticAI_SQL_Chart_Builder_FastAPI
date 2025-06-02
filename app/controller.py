@@ -12,4 +12,4 @@ async def request_insights(request: Request):
 
 @router.get("/get_chart")
 async def get_chart():
-    return FileResponse('index.html')
+    return FileResponse('file.html')
