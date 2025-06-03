@@ -8,10 +8,10 @@ from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.google_gla import GoogleGLAProvider
 from pydantic_ai.providers.openai import OpenAIProvider
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import os
 
-load_dotenv('.env')
+# load_dotenv('.env')
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")

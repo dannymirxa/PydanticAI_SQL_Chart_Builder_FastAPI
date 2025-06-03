@@ -22,6 +22,9 @@ services:
     build: .
     container_name: fastapi_chart_builder
     restart: always
+    environment:
+      - AZURE_OPENAI_KEY=${AZURE_OPENAI_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     ports:
       - "9090:9090"
     depends_on:

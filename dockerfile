@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # IMPORTANT: For production, it's often better to manage secrets using
 # Docker secrets or by passing environment variables at runtime,
 # rather than copying the .env file directly into the image.
-COPY .env .
+# COPY .env .
 
 # Copy the rest of the application code into the container
 COPY ./main.py .
