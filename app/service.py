@@ -226,7 +226,6 @@ def validate_sql_agent_output(output_obj: SQLResponse) -> SQLResponse:
     return InvalidRequest(error_message=f"Unexpected output type from SQLAgent: {type(output_obj)}")
 
 def generate_chart(db_engine: Engine, sql_query: str, python_code: str) -> None:
-    # db_engine = create_engine('postgresql+psycopg2://chinook:chinook@localhost:5433/chinook_auto_increment')
     df = create_dataframe_pd(db_engine, sql_query)
 
     code_blocks = re.findall(r"```python\n(.*?)```", python_code, re.DOTALL)
@@ -238,15 +237,22 @@ def generate_chart(db_engine: Engine, sql_query: str, python_code: str) -> None:
 
 async def main(request: Request) -> SQLResponse:
 
-    db_engine = create_engine('postgresql+psycopg2://chinook:chinook@localhost:5433/chinook_auto_increment')
+    # db_engine = create_engine('postgresql+psycopg2://chinook:chinook@localhost:5433/chinook_auto_increment')
+
+    # replace localhost with the container name and post with the db port {in this case it is postgres and the port is 5432} for docker deployment
+    db_engine = create_engine('postgresql+psycopg2://chinook:chinook@postgres:5432/chinook_auto_increment')
     
     shared_deps = Dependencies(db_engine=db_engine, dataframe=None)
 
-    sql_agent_final_response = await SQLAgent.run(request.query, deps=shared_deps)
+    sql_agent_response = await SQLAgent.run(request.query, deps=shared_deps)
 
-    generate_chart(db_engine= db_engine, sql_query= sql_agent_final_response.output.sql_query, python_code= sql_agent_final_response.output.chart_python_code)
+    if isinstance(sql_agent_response.output, InvalidRequest):
+        return sql_agent_response.output
+    
+    # If it's a SQLSuccess, proceed with chart generation
+    generate_chart(db_engine=db_engine, sql_query=sql_agent_response.output.sql_query, python_code=sql_agent_response.output.chart_python_code)
 
-    return sql_agent_final_response.output
+    return sql_agent_response.output
 
 if __name__=="__main__":
     request = Request(query="Show me how many albums each artist has, and plot this as a bar chart. List the artists and their album counts.")
@@ -255,32 +261,3 @@ if __name__=="__main__":
     """
     
     response = asyncio.run(main(request))
-
-#     print("-- sql_agent_final_response --")
-    # print(sql_agent_final_response.chart_python_code)
-
-
-    
-    # print(sql_agent_final_response)
-
-    # db_engine = create_engine('postgresql+psycopg2://chinook:chinook@localhost:5433/chinook_auto_increment')
-    
-    # shared_deps = Dependencies(db_engine=db_engine, dataframe=None)
-
-    # user_query = "Show me how many albums each artist has, and plot this as a bar chart. List the artists and their album counts."
-    # # print(f"User Query: {user_query}\n")
-
-    # sql_agent_final_response = SQLAgent.run_sync(user_query, deps=shared_deps)
-    # print("--- End SQL Agent Final Output ---")
-
-    # print(sql_agent_final_response.output.sql_query)
-    # print(sql_agent_final_response.output.detail)
-    # print(sql_agent_final_response.output.chart_insights)
-    # print(sql_agent_final_response.output.chart_python_code)
-    
-    # code_blocks = re.findall(r"```python\n(.*?)```", sql_agent_final_response.output.chart_python_code, re.DOTALL)
-
-    # full_code = "\n".join(code_blocks)
-    # full_code = dedent(full_code)
-
-    # print(full_code)
