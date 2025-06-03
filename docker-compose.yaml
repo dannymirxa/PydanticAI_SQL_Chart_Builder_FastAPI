@@ -15,6 +15,23 @@ services:
       - ./DataSources/Chinook_PostgreSql.sql:/docker-entrypoint-initdb.d/Chinook_PostgreSql.sql
       - ./DataSources/Chinook_PostgreSql_AutoIncrementPKs.sql:/docker-entrypoint-initdb.d/Chinook_PostgreSql_AutoIncrementPKs.sql
       - ./DataSources/Chinook_PostgreSql_SerialPKs.sql:/docker-entrypoint-initdb.d/Chinook_PostgreSql_SerialPKs.sql
+    networks:
+      - SQL-Chart-Agent
+
+  fastapi-app:
+    build: .
+    container_name: fastapi_chart_builder
+    restart: always
+    ports:
+      - "9090:9090"
+    depends_on:
+      - postgres
+    networks:
+      - SQL-Chart-Agent
 
 volumes:
   postgres_data:
+
+networks:
+  SQL-Chart-Agent:
+    driver: bridge
