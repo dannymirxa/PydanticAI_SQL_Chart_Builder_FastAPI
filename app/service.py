@@ -38,7 +38,7 @@ def system_prompt() -> str:
     Follow these steps meticulously:
     1.  **List Tables:** If you need to know the available tables, use the `list_tables_tool`.
     2.  **Describe Table:** To understand the schema of specific table(s) relevant to the user's request, use the `describe_table_tool` for each of them.
-    3.  **Run SQL Query:** Construct the SQL query based on the user's request and the table schemas. Execute it using the `run_sql_tool`. This tool will return a JSON string of the query results (or an error/empty array if no data).
+    3.  **Run SQL Query:** Construct the SQL query in Postgres syntax based on the user's request and the table schemas. Execute it using the `run_sql_tool`. This tool will return a JSON string of the query results (or an error/empty array if no data).
     4.  **Process SQL Result & Create DataFrame:**
         a.  Examine the JSON string output from `run_sql_tool`.
         b.  If the output indicates that data was successfully returned (e.g., it's a non-empty JSON array like `[{{\"column\": \"value\"}}]` and not an error structure like `{{ \"error\": ... }}` or an empty array `[]`), then you MUST proceed to call the `create_dataframe_tool`.
@@ -130,7 +130,7 @@ def chart_agent_system_prompt(ctx: RunContext[Dependencies]) -> str:
     3.  Generate valuable insights based on the data and the potential chart.
     4.  Produce concise and correct Python code (using plotly.express) to plot the graph. The code should assume `df` is pre-loaded.
     5.  The Python code should be a complete, executable script that generates and shows the plot.
-    6.  **Crucially, the generated Python code MUST include `fig.write_html('chart.html')` to save the chart.**
+    6.  **Crucially, the generated Python code MUST include `fig.write_html('templates/chart.html')` to save the chart.**
     7.  **Do not include `fig.show()`, the chart will not be browsed**
     8.  Return the insights and the Python code.
 
@@ -143,7 +143,7 @@ def chart_agent_system_prompt(ctx: RunContext[Dependencies]) -> str:
 
     # Your plotting code here
     # e.g., fig = px.bar(df, x='column_x', y='column_y', title='Your Chart Title')
-    fig.write_html('chart.html') # Save the chart as chart.html
+    fig.write_html('templates/chart.html') # Save the chart as chart.html in templates folder
     ```
 
     When returning the results in the `ChartSuccess` object, the `python_code` field must be formatted as a Python markdown code block.
