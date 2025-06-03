@@ -11,7 +11,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from dotenv import load_dotenv
 import os
 
-load_dotenv('/mnt/c/Projects/PydanticAI_SQL_Chart_Builder/.env')
+load_dotenv('.env')
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")

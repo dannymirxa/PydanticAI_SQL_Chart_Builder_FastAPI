@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from app.controller import router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Chart Generator")
+app.mount("/templates", StaticFiles(directory="templates"), name="templates")
 app.include_router(router)
-
 
 import uvicorn
 
